@@ -8,35 +8,22 @@ const PropTypes = require('prop-types');
 
 const ImageCacheManagerOptionsPropTypes = require('./ImageCacheManagerOptionsPropTypes');
 
-const flattenStyle = ReactNative.StyleSheet.flatten;
-
 const ImageCacheManager = require('./ImageCacheManager');
 
 const {
-    View,
-    ImageBackground,
-    ActivityIndicator,
-    NetInfo,
-    Platform,
-    StyleSheet,
-} = ReactNative;
+          ImageBackground,
+          NetInfo,
+          StyleSheet,
+      } = ReactNative;
 
 const styles = StyleSheet.create({
     image: {
         backgroundColor: 'transparent'
-    },
-    loader: {
-        backgroundColor: 'transparent',
-    },
-    loaderPlaceholder: {
-        backgroundColor: 'transparent',
-        alignItems: 'center',
-        justifyContent: 'center'
     }
 });
 
 function getImageProps(props) {
-    return _.omit(props, ['source', 'defaultSource', 'fallbackSource', 'LoadingIndicator', 'activityIndicatorProps', 'style', 'useQueryParamsInCacheKey', 'renderImage', 'resolveHeaders']);
+    return _.omit(props, ['source', 'placeholderSource', 'fallbackSource', 'style', 'useQueryParamsInCacheKey', 'renderImage', 'resolveHeaders']);
 }
 
 const CACHED_IMAGE_REF = 'cachedImage';
@@ -45,15 +32,14 @@ class CachedImage extends React.Component {
 
     static propTypes = {
         renderImage: PropTypes.func.isRequired,
-        activityIndicatorProps: PropTypes.object.isRequired,
 
         // ImageCacheManager options
-        ...ImageCacheManagerOptionsPropTypes,
+        ...ImageCacheManagerOptionsPropTypes
     };
 
     static defaultProps = {
-            renderImage: props => (<ImageBackground imageStyle={props.style} ref={CACHED_IMAGE_REF} {...props} />),
-            activityIndicatorProps: {},
+        renderImage: props => (<ImageBackground imageStyle={props.style} ref={CACHED_IMAGE_REF} {...props} />),
+        placeholderSource: { uri: "https://placeholder" }
     };
 
     static contextTypes = {
@@ -74,7 +60,7 @@ class CachedImage extends React.Component {
         this.safeSetState = this.safeSetState.bind(this);
         this.handleConnectivityChange = this.handleConnectivityChange.bind(this);
         this.processSource = this.processSource.bind(this);
-        this.renderLoader = this.renderLoader.bind(this);
+        this.renderPlaceholder = this.renderPlaceholder.bind(this);
     }
 
     componentWillMount() {
@@ -159,7 +145,7 @@ class CachedImage extends React.Component {
 
     render() {
         if (this.state.isCacheable && !this.state.cachedImagePath) {
-            return this.renderLoader();
+            return this.renderPlaceholder();
         }
         const props = getImageProps(this.props);
         const style = this.props.style || styles.image;
@@ -182,48 +168,16 @@ class CachedImage extends React.Component {
         });
     }
 
-    renderLoader() {
+    renderPlaceholder() {
         const imageProps = getImageProps(this.props);
-        const imageStyle = [this.props.style, styles.loaderPlaceholder];
+        const imageStyle = this.props.style;
+        const source = this.props.placeholderSource;
 
-        const activityIndicatorProps = _.omit(this.props.activityIndicatorProps, ['style']);
-        const activityIndicatorStyle = this.props.activityIndicatorProps.style || styles.loader;
-
-        const LoadingIndicator = this.props.loadingIndicator;
-
-        const source = this.props.defaultSource;
-
-        // if the imageStyle has borderRadius it will break the loading image view on android
-        // so we only show the ActivityIndicator
-        if (!source || (Platform.OS === 'android' && flattenStyle(imageStyle).borderRadius)) {
-            if (LoadingIndicator) {
-                return (
-                    <View style={[imageStyle, activityIndicatorStyle]}>
-                        <LoadingIndicator {...activityIndicatorProps} />
-                    </View>
-                );
-            }
-            return (
-                <ActivityIndicator
-                    {...activityIndicatorProps}
-                    style={[imageStyle, activityIndicatorStyle]}/>
-            );
-        }
-        // otherwise render an image with the defaultSource with the ActivityIndicator on top of it
         return this.props.renderImage({
             ...imageProps,
             style: imageStyle,
             key: source.uri,
-            source,
-            children: (
-                LoadingIndicator
-                    ? <View style={[imageStyle, activityIndicatorStyle]}>
-                    <LoadingIndicator {...activityIndicatorProps} />
-                </View>
-                    : <ActivityIndicator
-                    {...activityIndicatorProps}
-                    style={activityIndicatorStyle}/>
-            )
+            source
         });
     }
 
