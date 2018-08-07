@@ -88,6 +88,11 @@ class CachedImage extends React.Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if(!prevState.networkAvailable && this.state.networkAvailable)
+            this.processSource(this.props.source)
+    }
+
     setNativeProps(nativeProps) {
         try {
             this.refs[CACHED_IMAGE_REF].setNativeProps(nativeProps);
@@ -131,7 +136,8 @@ class CachedImage extends React.Component {
         imageCacheManager.downloadAndCacheUrl(url, options)
             .then(cachedImagePath => {
                 this.safeSetState({
-                    cachedImagePath
+                    cachedImagePath,
+                    isCacheable: true
                 });
             })
             .catch(err => {
