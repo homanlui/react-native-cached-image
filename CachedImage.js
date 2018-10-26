@@ -38,8 +38,13 @@ class CachedImage extends React.Component {
     };
 
     static defaultProps = {
+<<<<<<< HEAD
         renderImage: props => (<ImageBackground imageStyle={props.style} ref={CACHED_IMAGE_REF} {...props} />),
         placeholderSource: { uri: "https://placeholder" }
+=======
+            renderImage: props => (<ImageBackground ref={CACHED_IMAGE_REF} {...props} />),
+            activityIndicatorProps: {},
+>>>>>>> f7230506156da0fcb883eaf05b45e9173ae5eaad
     };
 
     static contextTypes = {
