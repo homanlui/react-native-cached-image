@@ -77,13 +77,17 @@ const {
 This is where all the cache magic takes place.
 The API usually takes a *URL* and a set of [`ImageCacheManagerOptions`](#imagecachemanageroptions).
 
+#### `ImageCacheManager.isUrlCached(url: String, options: ImageCacheManagerOptions): Promise`
+Check the cache for the URL (after removing fixing the query string according to `ImageCacheManagerOptions.useQueryParamsInCacheKey`).
+If the URL exists in cache and is not expired, return the local cached file path. Otherwise, return false.
+
 #### `ImageCacheManager.downloadAndCacheUrl(url: String, options: ImageCacheManagerOptions): Promise<String>`
-Check the cache for the the URL (after removing fixing the query string according to `ImageCacheManagerOptions.useQueryParamsInCacheKey`).
+Check the cache for the URL (after removing fixing the query string according to `ImageCacheManagerOptions.useQueryParamsInCacheKey`).
 If the URL exists in cache and is not expired, resolve with the local cached file path.
 Otherwise, download the file to the cache folder, add it to the cache and then return the cached file path.
 
 #### `ImageCacheManager.seedAndCacheUrl(url: String, seedPath: String, options: ImageCacheManagerOptions): Promise<String>`
-Check the cache for the the URL (after removing fixing the query string according to `ImageCacheManagerOptions.useQueryParamsInCacheKey`).
+Check the cache for the URL (after removing fixing the query string according to `ImageCacheManagerOptions.useQueryParamsInCacheKey`).
 If the URL exists in cache and is not expired, resolve with the local cached file path.
 Otherwise, copy the seed file into the cache folder, add it to the cache and then return the cached file path.
 
