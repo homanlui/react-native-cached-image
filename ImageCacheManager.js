@@ -25,7 +25,8 @@ module.exports = (defaultOptions = {}, urlCache = MemoryCache, fs = fsUtils, pat
 
     function getCachableUrl(url, options) {
         if (!isCacheable(url)) {
-            return Promise.reject(new Error('Url is not cacheable'));
+            //return Promise.reject(new Error('Url is not cacheable'));
+            return null;
         }
         // allow CachedImage to provide custom options
         _.defaults(options, defaultOptions);
@@ -57,6 +58,9 @@ module.exports = (defaultOptions = {}, urlCache = MemoryCache, fs = fsUtils, pat
 
     function isCached(url, options) {
         const cacheableUrl = getCachableUrl(url, options);
+        if (!cacheableUrl) {
+          return Promise.reject(new Error('Url is not cacheable'));
+        }
         return getCachedFile(cacheableUrl, options)
             .then(filePath => filePath)
             .catch(() => false);
@@ -64,6 +68,9 @@ module.exports = (defaultOptions = {}, urlCache = MemoryCache, fs = fsUtils, pat
 
     function cacheUrl(url, options, cacheMethod) {
         const cacheableUrl = getCachableUrl(url, options);
+        if (!cacheableUrl) {
+          return Promise.reject(new Error('Url is not cacheable'));
+        }
         return getCachedFile(cacheableUrl, options)
             // url is not found in the cache or is expired
             .catch(() => {
