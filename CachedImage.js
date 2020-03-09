@@ -12,7 +12,6 @@ const ImageCacheManager = require('./ImageCacheManager');
 
 const {
           ImageBackground,
-          NetInfo,
           StyleSheet,
       } = ReactNative;
 
@@ -21,6 +20,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent'
     }
 });
+
+import NetInfo from '@react-native-community/netinfo';
 
 function getImageProps(props) {
     return _.omit(props, ['source', 'placeholderSource', 'fallbackSource', 'style', 'useQueryParamsInCacheKey', 'renderImage', 'resolveHeaders']);
@@ -65,12 +66,12 @@ class CachedImage extends React.Component {
 
     componentWillMount() {
         this._isMounted = true;
-        NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+        this.unsubscribe = NetInfo.addEventListener('connectionChange', this.handleConnectivityChange);
         // initial
-        NetInfo.isConnected.fetch()
-            .then(isConnected => {
+        NetInfo.fetch()
+            .then(state => {
                 this.safeSetState({
-                    networkAvailable: isConnected
+                    networkAvailable: state.isConnected
                 });
             });
 
@@ -79,7 +80,9 @@ class CachedImage extends React.Component {
 
     componentWillUnmount() {
         this._isMounted = false;
-        NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+        if (this.unsubscribe) {
+          this.unsubscribe();
+        }
     }
 
     componentWillReceiveProps(nextProps) {
