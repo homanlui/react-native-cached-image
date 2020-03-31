@@ -65,7 +65,7 @@ class CachedImage extends React.Component {
         this.unsubscribe = null;
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this._isMounted = true;
         this.unsubscribe =NetInfo.addEventListener(state => {
           console.log('Connection Type', state.type);
@@ -85,14 +85,14 @@ class CachedImage extends React.Component {
         this.processSource(this.props.source);
     }
 
-    componentWillUnmount() {
+    UNSAFE_componentWillUnmount() {
         this._isMounted = false;
         if (this.unsubscribe) {
           this.unsubscribe();
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (!_.isEqual(this.props.source, nextProps.source)) {
             this.processSource(nextProps.source);
         }
